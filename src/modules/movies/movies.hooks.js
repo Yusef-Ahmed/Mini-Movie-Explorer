@@ -1,18 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { moviesService } from "./movies.service.js";
 
-export const useMovies = ({ enabled }) => {
+export const useMovies = ({ enabled }, pageNumber) => {
   return useQuery({
-    queryKey: ["movies"],
-    queryFn: moviesService.getAll,
+    queryKey: ["movies", pageNumber],
+    queryFn: () => moviesService.getAll(pageNumber || 1),
     enabled: enabled
   });
 };
 
-export const useSearchMovies = (query) => {
+export const useSearchMovies = (query, pageNumber) => {
   return useQuery({
-    queryKey: ["findMovie", query],
-    queryFn: () => moviesService.search(query),
+    queryKey: ["findMovie", query, pageNumber],
+    queryFn: () => moviesService.search(query, pageNumber || 1),
     enabled: !!query
   });
 };

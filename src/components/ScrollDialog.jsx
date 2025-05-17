@@ -5,11 +5,14 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { useMovie } from "../modules/movies/movies.hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import { CircularProgress, Rating } from "@mui/material";
+import { CircularProgress, Rating, useMediaQuery, useTheme } from "@mui/material";
 
 export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
   const { data, isPending, error } = useMovie(id);
-
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  
   const handleClose = () => {
     setOpenDialog(false);
   };
@@ -36,7 +39,7 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
         aria-describedby="scroll-dialog-description"
         PaperProps={{
           style: {
-            maxWidth: "70%",
+            maxWidth: isMobile ? "90%" : "70%",
             backgroundColor: "#1c1c1c",
             color: "azure",
           },
@@ -52,7 +55,7 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
         ) : (
           <>
             <div className="flex justify-between items-center mt-4">
-              <p className="text-2xl font-bold ml-6">{data.title}</p>
+              <p className="text-2xl font-bold ml-6 truncate">{data.title}</p>
               <DialogActions>
                 <CloseIcon
                   onClick={handleClose}
@@ -65,7 +68,7 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
                 id="scroll-dialog-description"
                 ref={descriptionElementRef}
                 tabIndex={-1}
-                className="flex gap-10 justify-between"
+                className="flex flex-col md:flex-row gap-10 justify-between"
               >
                 <img
                   className="mx-auto"
@@ -74,21 +77,25 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
                     data.poster_path
                   }
                   loading="lazy"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "../assets/alt-image.png";
+                  }}
                 />
                 <section className="text-gray-300 text-lg flex flex-col gap-4">
                   <div>
                     <p className="font-semibold text-cyan-100">Description:</p>
                     <p>{data.overview}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <p className="font-semibold text-cyan-100">Release Date:</p>
                     <p>{data.release_date}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <p className="font-semibold text-cyan-100">Rating:</p>
                     <Rating
                       name="read-only"
-                      size="large"
+                      size={isMobile ? "medium" : "large"}
                       value={data.vote_average}
                       max={10}
                       precision={0.1}
