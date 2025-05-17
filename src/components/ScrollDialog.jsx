@@ -5,14 +5,22 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { useMovie } from "../modules/movies/movies.hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import { CircularProgress, Rating, useMediaQuery, useTheme } from "@mui/material";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "motion/react";
+import {
+  CircularProgress,
+  Rating,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { forwardRef } from "react";
 
 export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
-  const { data, isPending, error } = useMovie(id);
-  
+  const { data, isPending } = useMovie(id);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  
+
   const handleClose = () => {
     setOpenDialog(false);
   };
@@ -27,7 +35,22 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
     }
   }, [openDialog]);
 
-  if (error) return <div>{error.message}</div>;
+  const Transition = forwardRef(function Transition(props, ref) {
+    return (
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: -50 }}
+        animate={{
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.5 },
+        }}
+        exit={{ opacity: 0, y: 50, transition: { duration: 0.5 } }}
+        {...props}
+        className="w-full h-full outline-none"
+      />
+    );
+  });
 
   return (
     <React.Fragment>
@@ -44,6 +67,8 @@ export default function ScrollDialog({ id, openDialog, setOpenDialog }) {
             color: "azure",
           },
         }}
+        TransitionComponent={Transition}
+        keepMounted
       >
         {isPending ? (
           <DialogContent dividers={true} className="w-[70vw] h-[50vh]">

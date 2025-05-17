@@ -2,9 +2,11 @@ import { useRef, useState } from "react";
 import { useMovies, useSearchMovies } from "./modules/movies/movies.hooks";
 import ScrollDialog from "./components/ScrollDialog";
 import { Button, CircularProgress, Pagination } from "@mui/material";
+import Card from "./components/Card";
+import { AnimatePresence } from "motion/react";
 
 function App() {
-  const ref = useRef();
+  const search = useRef();
 
   const [query, setQuery] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -20,8 +22,6 @@ function App() {
     pageNumber
   );
 
-  const displayedData = filteredData ?? defaultData;
-
   if (defaultIsPending && filteredIsPending) {
     return (
       <CircularProgress
@@ -31,8 +31,10 @@ function App() {
     );
   }
 
+  const displayedData = filteredData ?? defaultData;
+
   function handleSearch() {
-    setQuery(ref.current.value.trim());
+    setQuery(search.current.value.trim());
   }
 
   function handleClick(id) {
@@ -49,9 +51,9 @@ function App() {
       <h1 className="text-center text-2xl md:text-5xl mt-15">
         Mini Movie Explorer
       </h1>
-      <div className="flex gap-2 ml-2 md:justify-start justify-center">
+      <div className="flex gap-2 lg:ml-10 lg:justify-start justify-center">
         <input
-          ref={ref}
+          ref={search}
           className="md:p-2 border border-gray-400 rounded"
           name="search"
           onKeyDown={(e) => {
@@ -64,44 +66,28 @@ function App() {
           Search
         </Button>
       </div>
-      <div className="flex flex-wrap gap-5 justify-center">
+      <div className="flex flex-wrap gap-x-5 gap-y-7 justify-center">
         {displayedData.results.length === 0 && (
           <h2 className="text-3xl my-10">There is no results</h2>
         )}
-        {displayedData.results.map((movie) => (
-          <div
-            key={movie.id}
-            onClick={() => handleClick(movie.id)}
-            className="border cursor-pointer rounded-lg grow text-center flex flex-col gap-4 py-4 max-w-[250px]"
-          >
-            <h1 className="text-xl font-semibold truncate mx-5">
-              {movie.title}
-            </h1>
-            <img
-              className="mx-auto"
-              src={
-                "https://image.tmdb.org/t/p/w220_and_h330_face" +
-                movie.poster_path
-              }
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "../assets/alt-image.png";
-              }}
-              loading="lazy"
-            />
-            <p>
-              <b>Release Date: </b>
-              {movie.release_date}
-            </p>
-          </div>
-        ))}
-        {openDialog && (
-          <ScrollDialog
-            openDialog={openDialog}
-            setOpenDialog={setOpenDialog}
-            id={movieId}
-          />
+        {displayedData.results.map((movie) =>
+          import.meta.env.VITE_BAD_WORDS.split(",").some(
+            (word) =>
+              movie.overview.toLowerCase().includes(word) ||
+              movie.title.toLowerCase().includes(word)
+          ) ? null : (
+            <Card key={movie.id} movie={movie} handleClick={handleClick} />
+          )
         )}
+        <AnimatePresence>
+          {openDialog && (
+            <ScrollDialog
+              openDialog={openDialog}
+              setOpenDialog={setOpenDialog}
+              id={movieId}
+            />
+          )}
+        </AnimatePresence>
       </div>
       <Pagination
         page={pageNumber}
