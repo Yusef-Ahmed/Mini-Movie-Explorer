@@ -16,3 +16,11 @@ export const useSearchMovies = (query) => {
     enabled: !!query
   });
 };
+
+export const useMovie = (id) => {
+  return useQuery({
+    queryKey: ["getMovieById", id],
+    queryFn: () => moviesService.getById(id),
+    enabled: !!id
+  });
+};

@@ -22,5 +22,13 @@ export const moviesService = {
       throw error;
     }
   },
-  // getById: async (id) => {},
+  getById: async (id) => {
+    try {
+      const response = await api.get(`movie/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
 };
